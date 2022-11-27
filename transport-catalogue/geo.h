@@ -32,7 +32,7 @@ namespace transport_catalogue
             return acos(sin(from.lat * dr) * sin(to.lat * dr)
                 + cos(from.lat * dr) * cos(to.lat * dr) * cos(abs(from.lng - to.lng) * dr))
                 * EARTH_RADIUS;
-            !!!
+
         }
     }
 }
