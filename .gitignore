@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*Debug
+*.txt
+*.exe
+*.opendb
+*.vs
+/cpp-transport-catalogue/.vs/cpp-transport-catalogue
+.exp
+.pdb
