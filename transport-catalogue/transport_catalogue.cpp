@@ -21,12 +21,12 @@ namespace transport_catalogue
 		stopnames_to_stops_.insert({deque_stop.name, &deque_stop});
 	}
 
-	void TransportCatalogue::AddDistance(std::string stop1, std::string stop2, int distance)
+	void TransportCatalogue::AddDistance(const std::string& stop1, const std::string& stop2, int distance)
 	{
 		stops_distances_.insert({ {stopnames_to_stops_.at(stop1), stopnames_to_stops_.at(stop2)}, distance * 1.0});
 	}
 
-	double TransportCatalogue::GetGeoDistance(const string stop1, const string stop2)
+	double TransportCatalogue::GetGeoDistance(const string& stop1, const string& stop2)
 	{
 		if (stop1 == stop2)
 		{
@@ -35,7 +35,7 @@ namespace transport_catalogue
 		return coordinates::ComputeDistance(stopnames_to_stops_.at(stop1)->coordinates, stopnames_to_stops_.at(stop2)->coordinates);
 	}
 
-	double TransportCatalogue::GetRealDistance(const string stop1, ::string stop2)
+	double TransportCatalogue::GetRealDistance(const string& stop1, const string& stop2)
 	{
 		if (stops_distances_.count({ stopnames_to_stops_.at(stop1), stopnames_to_stops_.at(stop2) }))
 		{
@@ -45,7 +45,7 @@ namespace transport_catalogue
 	}
 
 
-	set<string> TransportCatalogue::GetBusesForStop(const Stop stop)
+	set<string> TransportCatalogue::GetBusesForStop(const Stop& stop)
 	{
 		if (stopnames_to_busnames_.count(stop.name))
 		{

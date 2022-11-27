@@ -50,14 +50,14 @@ namespace transport_catalogue
 	public:
 		void AddBus(const Bus bus);
 		void AddStop(const Stop stop);
-		void AddDistance(std::string stop1, std::string stop2, int distance);
+		void AddDistance(const std::string& stop1, const std::string& stop2, int distance);
 
 		const Bus& FindBus(const std::string& name);
 		const Stop& FindStop(const std::string& name);
 
-		double GetGeoDistance(const std::string stop1, const std::string stop2);
-		double GetRealDistance(const std::string stop1, const std::string stop2);
-		std::set<std::string> GetBusesForStop(const Stop stop);
+		double GetGeoDistance(const std::string& stop1, const std::string& stop2);
+		double GetRealDistance(const std::string& stop1, const std::string& stop2);
+		std::set<std::string> GetBusesForStop(const Stop& stop);
 
 	private:
 		std::deque<Bus> buses_;
