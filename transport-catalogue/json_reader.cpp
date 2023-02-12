@@ -188,17 +188,21 @@ namespace transport_catalogue
         void JsonReader::ProcessStatRequests()
         {
             json::Array requests_array = json_document_.GetRoot().AsMap().at("stat_requests").AsArray();
-            json::Array result;
+            //json::Array result;
+            json::Builder builder;
+            json::ArrayContext array_result = builder.StartArray();
 
             for (const json::Node& request : requests_array)
             {
                 if (request.AsMap().at("type"s).AsString() == "Stop"s)
                 {
-                    result.push_back(ParseStopRequest(request));
+                    //result.push_back(ParseStopRequest(request));
+                    array_result.Value(ParseStopRequest(request));
                 }
                 else if (request.AsMap().at("type"s).AsString() == "Bus"s)
                 {
-                    result.push_back(ParseBusRequest(request));
+                    //result.push_back(ParseBusRequest(request));
+                    array_result.Value(ParseBusRequest(request));
                 }
                 else if (request.AsMap().at("type"s).AsString() == "Map"s)
                 {
@@ -207,10 +211,13 @@ namespace transport_catalogue
                     map_renderer::MapRender map_renderer(GetRenderSettings(), transport_catalogue_.GetBusnamesToBuses());
                     map_renderer.SetProjectorSettings(transport_catalogue_.GetBusesCoordinates());
                     map_renderer.RenderMap().Render(output);
-                    result.push_back(json::Dict{ {"request_id"s, request.AsMap().at("id"s).AsInt()}, {"map"s, output.str()} });
+                    //result.push_back(json::Dict{ {"request_id"s, request.AsMap().at("id"s).AsInt()}, {"map"s, output.str()} });
+                    array_result.Value(json::Dict{ {"request_id"s, request.AsMap().at("id"s).AsInt()}, {"map"s, output.str()} });
                 }
             }
-            json_result_ = json::Document(json::Node(result));
+            //json_result_ = json::Document(json::Node(result));
+            json::Builder result = array_result.EndArray();
+            json_result_ = json::Document(result.Build());
         }
 
         void JsonReader::PrintResult()

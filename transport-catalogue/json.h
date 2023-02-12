@@ -24,6 +24,7 @@ namespace json
 	{
 	public:
 		using variant::variant;
+		using Value = variant;
 
 		bool				IsInt() const;
 		bool				IsDouble() const;
@@ -40,8 +41,12 @@ namespace json
 		const std::string&	AsString() const;
 		const Array&		AsArray() const;
 		const Dict&			AsMap() const;
+		std::string&		AsString();
+		Array&				AsArray();
+		Dict&				AsMap();
 
 		const Value& GetValue() const { return *this; }
+		Value& GetValueNonConst() { return *this; }
 
 		bool operator==(const Node& rhs) const
 		{
@@ -51,6 +56,7 @@ namespace json
 		{
 			return !(*this == rhs);
 		}
+	private:
 
 	};
 

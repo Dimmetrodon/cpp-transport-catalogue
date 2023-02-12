@@ -1,5 +1,6 @@
 #include "transport_catalogue.h"
 #include "request_handler.h"
+#include "json_builder.h"
 
 #include <iostream>
 #include <iomanip>
@@ -25,8 +26,40 @@ int main()
 	request_handler.LoadDataIntoTC();
 	request_handler.ProcessRequests();
 	request_handler.PrintResult();
-	//request_handler.RenderMap();
+	request_handler.RenderMap();
 	system("pause");
+
+    /*json::Print(
+        json::Document{
+            json::Builder{}
+            .StartDict()
+                .Key("key1"s).Value(123)
+                .Key("key2"s).Value("value2"s)
+                .Key("key3"s).StartArray()
+                    .Value(456)
+                    .StartDict().EndDict()
+                    .StartDict()
+                        .Key(""s)
+                        .Value(nullptr)
+                    .EndDict()
+                    .Value(""s)
+                .EndArray()
+            .EndDict()
+            .Build()
+        },
+        std::cout
+    );
+    std::cout << std::endl;
+
+    json::Print(
+        json::Document{
+            json::Builder{}
+            .Value("just a string"s)
+            .Build()
+        },
+        std::cout
+    );
+    std::cout << std::endl;*/
 
 	return 0;
 }

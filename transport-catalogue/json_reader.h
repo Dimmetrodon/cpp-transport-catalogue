@@ -5,6 +5,7 @@
 #include "domain.h"
 #include "json.h"
 #include "map_renderer.h"
+#include "json_builder.h"
 
 #include <string>
 #include <vector>

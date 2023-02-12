@@ -243,7 +243,7 @@ namespace json
                 {
                 }
             }
-            parsed_num[parsed_num.find('.')] = ',';
+            parsed_num[parsed_num.find('.')] = ','; //setlocale dependent
             return Node(stod(parsed_num));
         }
         catch (...)
@@ -369,6 +369,31 @@ namespace json
         return get<Array>(this->GetValue());
     }
     const Dict& Node::AsMap() const
+    {
+        if (!(IsMap()))
+        {
+            throw logic_error("Check for map failed");
+        }
+        return get<Dict>(*this);
+    }
+
+    string& Node::AsString()
+    {
+        if (!(IsString()))
+        {
+            throw logic_error("Check for string failed");
+        }
+        return get<string>(*this);
+    }
+    Array& Node::AsArray()
+    {
+        if (!(IsArray()))
+        {
+            throw logic_error("Check for array failed");
+        }
+        return get<Array>(this->GetValueNonConst());
+    }
+    Dict& Node::AsMap()
     {
         if (!(IsMap()))
         {
