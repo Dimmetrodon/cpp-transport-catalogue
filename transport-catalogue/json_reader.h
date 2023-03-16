@@ -21,6 +21,7 @@ namespace transport_catalogue
 
 			void							LoadJSON();
 			void							ProcessBaseRequests();
+			void							ProscessRoutingSettings();
 			void							ProcessStatRequests();
 			void							PrintResult();
 
@@ -30,11 +31,13 @@ namespace transport_catalogue
 
 			json::Dict						ParseStopRequest(const json::Node& stop_node);
 			json::Dict						ParseBusRequest(const json::Node& bus_node);
+			json::Dict						ParseRouteRequest(const json::Node& route_node);
 
 			map_renderer::RenderSettings	GetRenderSettings() const;
 
 		private:
 			TransportCatalogue&				transport_catalogue_;
+			graph::Router<double>			router_;
 			std::istream&					input_;
 			std::ostream&					output_;
 			json::Document					json_document_;

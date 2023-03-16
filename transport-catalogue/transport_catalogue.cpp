@@ -134,11 +134,6 @@ namespace transport_catalogue
 		unordered_set<string> unique_bus_names;
 		for (const Stop* bus_stop : bus_stops)
 		{
-			//auto test = unique_bus_names.find(bus_stop->name); // !!
-			//if (unique_bus_names.find(bus_stop->name) != unique_bus_names.end())
-			//{
-			//	unique_bus_names.insert(bus_stop->name);
-			//}
 			unique_bus_names.insert(bus_stop->name);
 		}
 		return unique_bus_names.size();
@@ -184,4 +179,80 @@ namespace transport_catalogue
 		return result;
 	}
 
+	void TransportCatalogue::BuildGraph()
+	{
+		graph_ = graph::DirectedWeightedGraph<double>(stops_.size());
+		for (const Bus& bus : buses_)
+		{
+			size_t left_bus_stop_count = bus.stops.size();
+			for (size_t i = 0; i != left_bus_stop_count; ++i)
+			{
+				const Stop* first_stop_iter = bus.stops[i];
+				graph::EdgeId first_stop_id = distance(stops_.begin(), find(stops_.begin(), stops_.end(), *first_stop_iter));
+				double forward_distance = 0;
+				double backwards_distance = 0;
+				for (size_t j = i + 1; j != left_bus_stop_count; ++j)
+				{
+					const Stop* second_stop_iter = bus.stops[j];
+					const Stop* prev_second_stop_iter = bus.stops[j - 1];
+					forward_distance += GetRealDistance(prev_second_stop_iter->name, second_stop_iter->name);
+					graph::EdgeId second_stop_id = distance(stops_.begin(), find(stops_.begin(), stops_.end(), *second_stop_iter));
+
+					graph_.AddEdge
+						({ first_stop_id, second_stop_id, (static_cast<int>(j) - static_cast<int>(i)), bus.name, route_settings_.bus_wait_time + forward_distance / route_settings_.bus_velocity * 60 / 1000 });
+					if (!bus.is_looped)
+					{
+						backwards_distance += GetRealDistance(second_stop_iter->name, prev_second_stop_iter->name);
+						graph_.AddEdge
+							({ second_stop_id, first_stop_id, (static_cast<int>(j) - static_cast<int>(i)), bus.name, route_settings_.bus_wait_time + backwards_distance / route_settings_.bus_velocity * 60 / 1000 });
+					}
+				}
+			}
+		}
+	}
+
+	void TransportCatalogue::AddRouteSettings(RouteSettings route_settings)
+	{
+		route_settings_ = route_settings;
+	}
+
+	graph::VertexId TransportCatalogue::GetVertexId(std::string_view stop_name) const
+	{
+		std::deque<transport_catalogue::Stop>::const_iterator needed_stop = find_if(stops_.begin(), stops_.end(), [stop_name](const Stop& stop) {return stop.name == stop_name; });
+		return distance(stops_.begin(), needed_stop);
+	}
+
+	const graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() const
+	{
+		return graph_;
+	}
+
+	const RouteSettings& TransportCatalogue::GetRouteSettings()
+	{
+		return route_settings_;
+	}
+
+	const string& TransportCatalogue::GetFirstStopByEdgeId(graph::EdgeId id) const
+	{
+		graph::Edge edge = graph_.GetEdge(id);
+		return stops_.at(edge.from).name;
+	}
+
+	const string TransportCatalogue::GetBusNameByEdgeId(graph::EdgeId id) const
+	{
+		graph::Edge edge = graph_.GetEdge(id);
+		return edge.bus_name;
+	}
+
+	double TransportCatalogue::GetEdgeWeightByEdgeId(graph::EdgeId id) const
+	{
+		graph::Edge edge = graph_.GetEdge(id);
+		return edge.weight;
+	}
+
+	int TransportCatalogue::GetSpanCountByEdgeId(graph::EdgeId id) const
+	{
+		graph::Edge edge = graph_.GetEdge(id);
+		return edge.span_count;
+	}
 }

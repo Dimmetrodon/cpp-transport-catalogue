@@ -13,7 +13,7 @@ namespace transport_catalogue
 		class RequestHandler
 		{
 		public:
-			RequestHandler(TransportCatalogue& transport_catalogue, std::istream& input, std::ostream& output);
+			RequestHandler(TransportCatalogue& transport_catalogue, std::istream& input, std::ostream& output, std::ostream& svg_output);
 
 			void						LoadDataIntoTC();
 			void						ProcessRequests();
@@ -24,6 +24,7 @@ namespace transport_catalogue
 			TransportCatalogue&			transport_catalogue_;
 			std::istream&				input_;
 			std::ostream&				output_;
+			std::ostream&				svg_output_;
 			json_reader::JsonReader		json_reader_;
 		};
 	}

@@ -6,10 +6,11 @@ namespace transport_catalogue
 {
 	namespace request_handler
 	{
-		RequestHandler::RequestHandler(TransportCatalogue& transport_catalogue, istream& input, ostream& output)
+		RequestHandler::RequestHandler(TransportCatalogue& transport_catalogue, istream& input, ostream& output, ostream& svg_output)
 			: transport_catalogue_(transport_catalogue)
 			, input_(input)
 			, output_(output)
+			, svg_output_(svg_output)
 			, json_reader_(transport_catalogue, input, output)
 		{
 		}
@@ -17,7 +18,8 @@ namespace transport_catalogue
 		void RequestHandler::LoadDataIntoTC()
 		{
 			json_reader_.LoadJSON();
-			json_reader_.ProcessBaseRequests();
+			json_reader_.ProscessRoutingSettings();
+			json_reader_.ProcessBaseRequests(); 
 		}
 
 		void RequestHandler::ProcessRequests()

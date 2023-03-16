@@ -21,45 +21,12 @@ int main()
 	output_svg.open("output.svg");
 
 
-	transport_catalogue::TransportCatalogue cat;
-	request_handler::RequestHandler request_handler(cat, input, std::cout);
+	transport_catalogue::TransportCatalogue catalogue;
+	request_handler::RequestHandler request_handler(catalogue, input, output_txt, std::cout);
 	request_handler.LoadDataIntoTC();
 	request_handler.ProcessRequests();
 	request_handler.PrintResult();
-	request_handler.RenderMap();
-	system("pause");
-
-    /*json::Print(
-        json::Document{
-            json::Builder{}
-            .StartDict()
-                .Key("key1"s).Value(123)
-                .Key("key2"s).Value("value2"s)
-                .Key("key3"s).StartArray()
-                    .Value(456)
-                    .StartDict().EndDict()
-                    .StartDict()
-                        .Key(""s)
-                        .Value(nullptr)
-                    .EndDict()
-                    .Value(""s)
-                .EndArray()
-            .EndDict()
-            .Build()
-        },
-        std::cout
-    );
-    std::cout << std::endl;
-
-    json::Print(
-        json::Document{
-            json::Builder{}
-            .Value("just a string"s)
-            .Build()
-        },
-        std::cout
-    );
-    std::cout << std::endl;*/
-
+	//request_handler.RenderMap();
+	//system("pause");
 	return 0;
 }

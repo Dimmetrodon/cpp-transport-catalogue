@@ -1,6 +1,8 @@
 #pragma once
 #include "geo.h"
 #include "domain.h"
+#include "router.h"
+#include "graph.h"
 
 #include <string>
 #include <string_view>
@@ -31,27 +33,40 @@ namespace transport_catalogue
 	class TransportCatalogue
 	{
 	public:
-		void					AddBus(std::string& bus_name, const std::vector<std::string>& stop_names, bool is_looped);
-		void					AddStop(std::string& stop_name, coordinates::Coordinates coordinates);
-		void					AddDistance(const std::string& stop1, const std::string& stop2, int distance);
+		void										AddBus(std::string& bus_name, const std::vector<std::string>& stop_names, bool is_looped);
+		void                                        AddStop(std::string& stop_name, coordinates::Coordinates coordinates);
+		void                                        AddDistance(const std::string& stop1, const std::string& stop2, int distance);
+		void										AddRouteSettings(RouteSettings route_settings);
 
-		const Bus&				FindBus(const std::string& name);
-		const Stop&				FindStop(const std::string& name);
+		const Bus&                                  FindBus(const std::string& name);
+		const Stop&                                 FindStop(const std::string& name);
 
-		double					GetGeoDistance(const std::string& stop1, const std::string& stop2);
-		double					GetRealDistance(const std::string& stop1, const std::string& stop2);
-		double					GetGeoRouteDistance(const Bus& bus);
-		double					GetRealRouteDistance(const Bus& bus);
-		std::set<std::string>	GetBusesByStop(const Stop& stop);
-		int						GetBusStopCount(const std::string& bus_name);
-		int						GetBusUniqueStopsCount(const std::string& bus_name);
-		double					GetBusCurvature(const std::string& bus_name);
+		double                                      GetGeoDistance(const std::string& stop1, const std::string& stop2);
+		double                                      GetRealDistance(const std::string& stop1, const std::string& stop2);
+		double                                      GetGeoRouteDistance(const Bus& bus);
+		double                                      GetRealRouteDistance(const Bus& bus);
+		std::set<std::string>                       GetBusesByStop(const Stop& stop);
+		int                                         GetBusStopCount(const std::string& bus_name);
+		int                                         GetBusUniqueStopsCount(const std::string& bus_name);
+		double                                      GetBusCurvature(const std::string& bus_name);
 
-		std::vector<coordinates::Coordinates>		GetBusesCoordinates() const;
-		const std::map<std::string, const Bus*>&	GetBusnamesToBuses() const;
+		void										BuildGraph();
+		const graph::DirectedWeightedGraph<double>& GetGraph() const;
+		graph::VertexId								GetVertexId(std::string_view stop_name) const;
+		const RouteSettings&						GetRouteSettings();
+
+		const std::string&							GetFirstStopByEdgeId(graph::EdgeId id) const;
+		const std::string							GetBusNameByEdgeId(graph::EdgeId id) const;
+		double										GetEdgeWeightByEdgeId(graph::EdgeId id) const;
+		int											GetSpanCountByEdgeId(graph::EdgeId id) const;
+
+		std::vector<coordinates::Coordinates>       GetBusesCoordinates() const;
+		const std::map<std::string, const Bus*>&    GetBusnamesToBuses() const;
 	private:
 		std::deque<Bus>																			buses_;
 		std::deque<Stop>																		stops_;
+		RouteSettings																			route_settings_;
+		graph::DirectedWeightedGraph<double>													graph_;
 
 		std::map<std::string, const Bus*>														busnames_to_buses_;
 		std::unordered_map<std::string, const Stop*>											stopnames_to_stops_;

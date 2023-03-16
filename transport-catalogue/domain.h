@@ -13,10 +13,21 @@ namespace transport_catalogue
 		coordinates::Coordinates coordinates;
 	};
 
+	inline bool operator==(const Stop& lhs, const Stop& rhs)
+	{
+		return lhs.name == rhs.name && lhs.coordinates == rhs.coordinates;
+	}
+
 	struct Route
 	{
 		std::vector<std::string> stops;
 		bool is_looped;
+	};
+
+	struct RouteSettings
+	{
+		int bus_wait_time;
+		double bus_velocity;
 	};
 
 	struct Bus
