@@ -127,8 +127,8 @@ namespace svg
     private:
         Owner& AsOwner()
         {
-            // static_cast безопасно преобразует *this к Owner&,
-            // если класс Owner — наследник PathProps
+            // static_cast Р±РµР·РѕРїР°СЃРЅРѕ РїСЂРµРѕР±СЂР°Р·СѓРµС‚ *this Рє Owner&,
+            // РµСЃР»Рё РєР»Р°СЃСЃ Owner вЂ” РЅР°СЃР»РµРґРЅРёРє PathProps
             return static_cast<Owner&>(*this);
         }
 

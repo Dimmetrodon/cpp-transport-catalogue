@@ -17,13 +17,13 @@ namespace transport_catalogue
 		class JsonReader
 		{
 		public:
-			JsonReader(TransportCatalogue& transport_catalogue, std::istream& input, std::ostream& output);
+			JsonReader(TransportCatalogue& transport_catalogue);
 
-			void							LoadJSON();
+			void							LoadJSON(std::istream& input);
 			void							ProcessBaseRequests();
 			void							ProscessRoutingSettings();
-			void							ProcessStatRequests();
-			void							PrintResult();
+			void							ProcessStatRequests(std::ostream& output);
+			//void							PrintResult();
 
 			ParsedStop						ParseStop(const json::Node& stop_node);
 			ParsedDistance					ParseDistance(const json::Node& stop_node);
@@ -31,15 +31,13 @@ namespace transport_catalogue
 
 			json::Dict						ParseStopRequest(const json::Node& stop_node);
 			json::Dict						ParseBusRequest(const json::Node& bus_node);
-			json::Dict						ParseRouteRequest(const json::Node& route_node);
+			json::Dict						ParseRouteRequest(const json::Node& route_node, const graph::Router<double>& router);
 
 			map_renderer::RenderSettings	GetRenderSettings() const;
-
+			RouteSettings					GetRoutingSettings() const;
+			std::string						GetSerializationFilename() const;
 		private:
 			TransportCatalogue&				transport_catalogue_;
-			graph::Router<double>			router_;
-			std::istream&					input_;
-			std::ostream&					output_;
 			json::Document					json_document_;
 			json::Document					json_result_;
 		};

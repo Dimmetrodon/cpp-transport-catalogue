@@ -16,7 +16,7 @@ namespace graph {
     {
         VertexId from;
         VertexId to;
-        int span_count;
+        uint32_t span_count;
         std::string bus_name;
         Weight weight;
     };
@@ -36,6 +36,15 @@ namespace graph {
         size_t GetEdgeCount() const;
         const Edge<Weight>& GetEdge(EdgeId edge_id) const;
         IncidentEdgesRange GetIncidentEdges(VertexId vertex) const;
+
+        typename std::vector<Edge<Weight>>::const_iterator begin() const 
+        {
+            return edges_.begin();
+        }
+        typename std::vector<Edge<Weight>>::const_iterator end() const 
+        {
+            return edges_.end();
+        }
 
     private:
         std::vector<Edge<Weight>> edges_;

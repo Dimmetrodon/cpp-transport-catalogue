@@ -6,38 +6,45 @@ namespace transport_catalogue
 {
 	namespace request_handler
 	{
-		RequestHandler::RequestHandler(TransportCatalogue& transport_catalogue, istream& input, ostream& output, ostream& svg_output)
+		RequestHandler::RequestHandler(TransportCatalogue& transport_catalogue)
 			: transport_catalogue_(transport_catalogue)
-			, input_(input)
-			, output_(output)
-			, svg_output_(svg_output)
-			, json_reader_(transport_catalogue, input, output)
+			, json_reader_(transport_catalogue)
 		{
 		}
 
-		void RequestHandler::LoadDataIntoTC()
+		void RequestHandler::LoadJsonDocument(std::istream& input) 
 		{
-			json_reader_.LoadJSON();
+			json_reader_.LoadJSON(input);
+		}
+
+		void RequestHandler::LoadDataIntoTC(std::istream& input)
+		{
+			json_reader_.LoadJSON(input);
 			json_reader_.ProscessRoutingSettings();
 			json_reader_.ProcessBaseRequests(); 
 		}
 
-		void RequestHandler::ProcessRequests()
+		void RequestHandler::ProcessRequests(std::ostream& output)
 		{
-			json_reader_.ProcessStatRequests();
+			json_reader_.ProcessStatRequests(output);
 		}
 
-		void RequestHandler::PrintResult()
+		/*void RequestHandler::PrintResult()
 		{
 			json_reader_.PrintResult();
-		}
+		}*/
 
-		void RequestHandler::RenderMap()
+		void RequestHandler::RenderMap(std::ostream& output)
 		{
 			map_renderer::MapRender map_render(json_reader_.GetRenderSettings(), transport_catalogue_.GetBusnamesToBuses());
 			map_render.SetProjectorSettings(transport_catalogue_.GetBusesCoordinates());
 			svg::Document doc = map_render.RenderMap();
-			doc.Render(output_);
+			doc.Render(output);
+		}
+
+		std::string RequestHandler::GetSerializationFilename() const 
+		{
+			return json_reader_.GetSerializationFilename();
 		}
 
 	}

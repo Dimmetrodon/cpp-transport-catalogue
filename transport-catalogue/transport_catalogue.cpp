@@ -4,7 +4,7 @@ using namespace std;
 
 namespace transport_catalogue
 {
-	void TransportCatalogue::AddBus(string& bus_name, const vector<string>& stop_names, bool is_looped)
+	void TransportCatalogue::AddBus(const string& bus_name, const vector<string>& stop_names, bool is_looped)
 	{
 		vector<const Stop*> stops_ptrs;
 		for (const string& stop_name : stop_names)
@@ -24,7 +24,7 @@ namespace transport_catalogue
 		}
 	}
 
-	void TransportCatalogue::AddStop(string& stop_name, coordinates::Coordinates coordinates)
+	void TransportCatalogue::AddStop(const string& stop_name, coordinates::Coordinates coordinates)
 	{
 		Stop& deque_stop = *(stops_.insert(stops_.end(), { stop_name, coordinates }));
 		stopnames_to_stops_.insert({ deque_stop.name, &deque_stop });
@@ -199,12 +199,12 @@ namespace transport_catalogue
 					graph::EdgeId second_stop_id = distance(stops_.begin(), find(stops_.begin(), stops_.end(), *second_stop_iter));
 
 					graph_.AddEdge
-						({ first_stop_id, second_stop_id, (static_cast<int>(j) - static_cast<int>(i)), bus.name, route_settings_.bus_wait_time + forward_distance / route_settings_.bus_velocity * 60 / 1000 });
+						({ first_stop_id, second_stop_id, (static_cast<uint32_t>(j) - static_cast<uint32_t>(i)), bus.name, route_settings_.bus_wait_time + forward_distance / route_settings_.bus_velocity * 60 / 1000 });
 					if (!bus.is_looped)
 					{
 						backwards_distance += GetRealDistance(second_stop_iter->name, prev_second_stop_iter->name);
 						graph_.AddEdge
-							({ second_stop_id, first_stop_id, (static_cast<int>(j) - static_cast<int>(i)), bus.name, route_settings_.bus_wait_time + backwards_distance / route_settings_.bus_velocity * 60 / 1000 });
+							({ second_stop_id, first_stop_id, (static_cast<uint32_t>(j) - static_cast<uint32_t>(i)), bus.name, route_settings_.bus_wait_time + backwards_distance / route_settings_.bus_velocity * 60 / 1000 });
 					}
 				}
 			}
@@ -227,7 +227,7 @@ namespace transport_catalogue
 		return graph_;
 	}
 
-	const RouteSettings& TransportCatalogue::GetRouteSettings()
+	const RouteSettings& TransportCatalogue::GetRouteSettings() const
 	{
 		return route_settings_;
 	}
@@ -250,9 +250,50 @@ namespace transport_catalogue
 		return edge.weight;
 	}
 
-	int TransportCatalogue::GetSpanCountByEdgeId(graph::EdgeId id) const
+	uint32_t TransportCatalogue::GetSpanCountByEdgeId(graph::EdgeId id) const
 	{
 		graph::Edge edge = graph_.GetEdge(id);
 		return edge.span_count;
 	}
-}
+
+	const std::deque<Stop>& TransportCatalogue::GetStops() const
+	{
+		return stops_; 
+	}
+
+	const std::deque<Bus>& TransportCatalogue::GetBuses() const 
+	{
+		return buses_;
+	}
+
+	const std::unordered_map<std::pair<const Stop*, const Stop*>, double, detail::StopsHasher>& TransportCatalogue::GetDistances() const
+	{
+		return stops_distances_;
+	}
+
+	size_t TransportCatalogue::GetStopIndex(const Stop* stop) const
+	{
+		auto it = find(stops_.begin(), stops_.end(), *stop);
+		return distance(stops_.begin(), it);
+	}
+
+	std::string TransportCatalogue::GetStopnameByIndex(size_t index) const
+	{
+		return stops_.at(index).name;
+	}
+
+	void TransportCatalogue::SetRenderSettings(map_renderer::RenderSettings settings)
+	{
+		render_settings_ = settings;
+	}
+
+	const map_renderer::RenderSettings&	TransportCatalogue::GetRenderSettings() const
+	{
+		return render_settings_;
+	}
+
+	void TransportCatalogue::SetGraph(graph::DirectedWeightedGraph<double> graph)
+	{
+		graph_ = graph;
+	}
+}// namespace transport_catalogue

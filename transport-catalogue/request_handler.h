@@ -13,18 +13,17 @@ namespace transport_catalogue
 		class RequestHandler
 		{
 		public:
-			RequestHandler(TransportCatalogue& transport_catalogue, std::istream& input, std::ostream& output, std::ostream& svg_output);
+			RequestHandler(TransportCatalogue& transport_catalogue);
 
-			void						LoadDataIntoTC();
-			void						ProcessRequests();
-			void						PrintResult();
-			void						RenderMap();
+			void						LoadDataIntoTC(std::istream& input);
+			void						ProcessRequests(std::ostream& output);
+			//void						PrintResult();
+			void						LoadJsonDocument(std::istream& input);
+			void						RenderMap(std::ostream& output);
+			std::string					GetSerializationFilename() const;
 
 		private:
 			TransportCatalogue&			transport_catalogue_;
-			std::istream&				input_;
-			std::ostream&				output_;
-			std::ostream&				svg_output_;
 			json_reader::JsonReader		json_reader_;
 		};
 	}

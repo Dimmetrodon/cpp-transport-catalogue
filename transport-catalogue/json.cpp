@@ -243,7 +243,7 @@ namespace json
                 {
                 }
             }
-            parsed_num[parsed_num.find('.')] = ','; //setlocale dependent
+            //parsed_num[parsed_num.find('.')] = ','; //setlocale dependent
             return Node(stod(parsed_num));
         }
         catch (...)

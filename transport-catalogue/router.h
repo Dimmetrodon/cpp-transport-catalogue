@@ -85,6 +85,13 @@ namespace graph {
     Router<Weight>::Router(const Graph& graph)
         : graph_(graph)
     {
+        routes_internal_data_ = { graph.GetVertexCount(), std::vector<std::optional<RouteInternalData>>(graph_.GetVertexCount()) };
+        InitializeRoutesInternalData(graph);
+        const size_t vertex_count = graph.GetVertexCount();
+        for (VertexId vertex_through = 0; vertex_through != vertex_count; ++vertex_through) 
+        {
+            RelaxRoutesInternalDataThroughVertex(vertex_count, vertex_through);
+        }
     }
 
     template <typename Weight>

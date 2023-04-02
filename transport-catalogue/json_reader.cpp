@@ -6,17 +6,14 @@ namespace transport_catalogue
 {
 	namespace json_reader
 	{
-        JsonReader::JsonReader(TransportCatalogue& transport_catalogue, istream& input, ostream& output)
+        JsonReader::JsonReader(TransportCatalogue& transport_catalogue)
             : transport_catalogue_(transport_catalogue)
-            , router_(transport_catalogue_.GetGraph())
-            , input_(input)
-            , output_(output)
         {
         }
 
-		void JsonReader::LoadJSON()
+		void JsonReader::LoadJSON(std::istream& input)
 		{
-			json_document_ = json::Load(input_);
+			json_document_ = json::Load(input);
 		}
 
         ParsedStop JsonReader::ParseStop(const json::Node& stop_node)
@@ -95,8 +92,10 @@ namespace transport_catalogue
                 ParsedBus parsed_bus = ParseBus(request);
                 transport_catalogue_.AddBus(parsed_bus.bus_name, parsed_bus.stop_names, parsed_bus.is_looped);
             }
+
+            transport_catalogue_.SetRenderSettings(GetRenderSettings());
             transport_catalogue_.BuildGraph();
-            router_.RouterAfterInitialization();
+            //router_.RouterAfterInitialization();
 		}
 
         void JsonReader::ProscessRoutingSettings()
@@ -148,7 +147,7 @@ namespace transport_catalogue
             };
         }
 
-        json::Dict JsonReader::ParseRouteRequest(const json::Node& route_node)
+        json::Dict JsonReader::ParseRouteRequest(const json::Node& route_node, const graph::Router<double>& router)
         {
             int request_id = route_node.AsMap().at("id"s).AsInt();
             std::string from_string = route_node.AsMap().at("from"s).AsString();
@@ -156,7 +155,7 @@ namespace transport_catalogue
             std::string to_string = route_node.AsMap().at("to"s).AsString();
             int to_int = transport_catalogue_.GetVertexId(to_string);
 
-            std::optional<graph::Router<double>::RouteInfo> route = router_.BuildRoute(from_int, to_int);
+            std::optional<graph::Router<double>::RouteInfo> route = router.BuildRoute(from_int, to_int);
             //check
             if (!route.has_value())
             {
@@ -187,12 +186,14 @@ namespace transport_catalogue
             return array_result.EndArray().Build().AsMap();
         }
 
-        void JsonReader::ProcessStatRequests()
+        void JsonReader::ProcessStatRequests(std::ostream& output)
         {
             json::Array requests_array = json_document_.GetRoot().AsMap().at("stat_requests"s).AsArray();
             //json::Array result;
             json::Builder builder;
             json::ArrayContext array_result = builder.StartArray();
+            const graph::DirectedWeightedGraph<double>& graph = transport_catalogue_.GetGraph();
+            graph::Router router(graph);
 
             for (const json::Node& request : requests_array)
             {
@@ -209,24 +210,25 @@ namespace transport_catalogue
                 else if (request.AsMap().at("type"s).AsString() == "Map"s)
                 {
                     std::ostringstream output;
-                    map_renderer::MapRender map_renderer(GetRenderSettings(), transport_catalogue_.GetBusnamesToBuses());
+                    map_renderer::MapRender map_renderer(transport_catalogue_.GetRenderSettings(), transport_catalogue_.GetBusnamesToBuses());
                     map_renderer.SetProjectorSettings(transport_catalogue_.GetBusesCoordinates());
                     map_renderer.RenderMap().Render(output);
                     array_result.Value(json::Dict{ {"request_id"s, request.AsMap().at("id"s).AsInt()}, {"map"s, output.str()} });
                 }
                 else if (request.AsMap().at("type"s).AsString() == "Route"s)
                 {
-                    array_result.Value(ParseRouteRequest(request));
+                    array_result.Value(ParseRouteRequest(request, router));
                 }
             }
             json::Builder result = array_result.EndArray();
-            json_result_ = json::Document(result.Build());
+            //json_result_ = json::Document(result.Build());
+            json::Print(json::Document(result.Build()), output);
         }
 
-        void JsonReader::PrintResult()
+        /*void JsonReader::PrintResult()
         {
-            json::Print(json_result_, output_);
-        }
+            json::Print(json_result_, output);
+        }*/
 
         map_renderer::RenderSettings JsonReader::GetRenderSettings() const
         {
@@ -328,6 +330,19 @@ namespace transport_catalogue
                 }
             }
             return result;
+        }
+
+        RouteSettings JsonReader::GetRoutingSettings() const 
+        {
+            json::Dict routing_settings_map = json_document_.GetRoot().AsMap().at("routing_settings"s).AsMap();
+            int bus_wait_time = routing_settings_map.at("bus_wait_time"s).AsInt();
+            double bus_velocity = routing_settings_map.at("bus_velocity"s).AsDouble();
+            return { bus_wait_time, bus_velocity };
+        }
+
+        std::string JsonReader::GetSerializationFilename() const 
+        {
+            return json_document_.GetRoot().AsMap().at("serialization_settings").AsMap().at("file").AsString();
         }
 	}//namespace json_reader
 }//namespace transport_catalogue
